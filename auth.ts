@@ -131,6 +131,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (user) {
                 token.id = (user as any).sanityId ?? user.id        // uporabi Sanity ID, če obstaja
             }
+            if (!token.id && token.sub) {
+                token.id = token.sub
+            }
             return token
         },
 
