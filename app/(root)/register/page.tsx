@@ -30,16 +30,16 @@ const RegisterPage = () => {
         }
 
         // Uspešna registracija → home
-        router.push("/");
+        router.push("/dashboard");
         router.refresh();
     }
 
     return (
         <div className="authPage">
-            <div className="text-3xl text-light-gray mb-10">
-                Register
-            </div>
             <section className="authSection">
+                <div className="mb-6 text-2xl font-semibold text-black">
+                    Register
+                </div>
                 <form className="authForm" onSubmit={handleSubmit}>
                     <label htmlFor="username">Username</label>
                     <input id="username" name="username" type="text" className="authInput"/>
@@ -56,7 +56,7 @@ const RegisterPage = () => {
                     {/* Napaka */}
                     {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                    <button className="button" type="submit">
+                    <button className="buttonPrimary" type="submit">
                         Register
                     </button>
 

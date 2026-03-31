@@ -7,42 +7,41 @@ const navbar = async () => {
     const session = await auth();
 
     return (
-        <header className='px-5 py-3 bg-white shadow-sm font-work-sans'>
-            <nav className='flex justify-between items-center'>
-                <Link href="/">
-                    <span className="text-black">Home</span>
+        <header className="header">
+            <nav className="mx-auto flex w-full max-w-5xl items-center justify-between">
+                <Link href={session?.user ? "/dashboard" : "/"} className="text-lg font-semibold">
+                    CarLog
                 </Link>
 
-                <div className="flex items-center gap-5 text-black">
+                <div className="flex items-center gap-5 text-base whitespace-nowrap">
+                    <Link href="/vehicle/create" className="text-black hover:text-neutral-600 whitespace-nowrap">
+                        Add vehicle
+                    </Link>
+                    <Link href="/todo" className="text-black hover:text-neutral-600 whitespace-nowrap">
+                        To-do
+                    </Link>
                     {session && session?.user ? (
                         <>
-                            <Link href="/vehicle/create">
-                                <span>Create</span>
-                            </Link>
-
-                            <form action={async() => {
-                                "use server"
-
-                                await signOut({redirectTo: "/"});
-                                }}>
-                                <button type="submit">
-                                    Logout
+                            <form
+                                action={async () => {
+                                    "use server";
+                                    await signOut({ redirectTo: "/" });
+                                }}
+                            >
+                                <button type="submit" className="button">
+                                    Log out
                                 </button>
                             </form>
-
-                            <Link href={`/profile`}>
-                                <span>{session?.user?.name}</span>
-                            </Link>
                         </>
                     ) : (
-                        <Link href="/login/">
-                                <span>Log In</span>
-                            </Link>
+                        <Link href="/login/" className="buttonPrimary whitespace-nowrap">
+                            Log in
+                        </Link>
                     )}
                 </div>
             </nav>
         </header>
-    )
+    );
 }
 
 export default navbar

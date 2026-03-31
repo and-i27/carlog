@@ -36,7 +36,7 @@ const Login = () => {
                 }
                 
                 // Uspešna prijava
-                router.push("/");
+                router.push("/dashboard");
                 router.refresh();
             }
             // Google login tukaj ne pride do konca
@@ -51,10 +51,10 @@ const Login = () => {
 
     return (
         <div className="authPage">
-            <div className="text-3xl mb-10 text-light-gray">
-                Login
-            </div>
             <section className="authSection">
+                <div className="mb-6 text-2xl font-semibold text-black">
+                    Log in
+                </div>
                 {/* LOGIN S CREDENTIALS */}
                 <form className="authForm"
                     onSubmit={async (e) => {
@@ -77,7 +77,7 @@ const Login = () => {
                     {/* Prikaz napake */}
                     {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                    <button data-testid="submit-login" disabled={authenticating} className="button disabled:cursor-not-allowed disabled:opacity-75" type="submit">
+                    <button data-testid="submit-login" disabled={authenticating} className="buttonPrimary disabled:cursor-not-allowed disabled:opacity-75" type="submit">
                         {authenticating ? "Logging in..." : "Login"}
                     </button>
                 </form>
@@ -88,19 +88,19 @@ const Login = () => {
                 {/* Divider */}
                 <div className="w-4/5 mx-auto relative">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-black"></div>
+                        <div className="w-full border-t border-[color:var(--border)]"></div>
                     </div>
                     <div className="relative flex justify-center text-sm">
-                        <span className="px-4 bg-shaddy-blue">Or</span>
+                        <span className="px-4 bg-white text-[color:var(--muted)]">Or</span>
                     </div>
                 </div>
                 {/* GOOGLE LOGIN */}
                 <form
                     action={(formData) => handleLogin("google", formData)}
                 >
-                    <button className="button flex items-center mx-auto" type="submit">
+                    <button className="button flex w-full items-center justify-center gap-2" type="submit">
                         <Image src="/google.png" alt="google" width={24} height={24} />
-                        <span className="ml-2">Login with Google</span>
+                        <span>Login with Google</span>
                     </button>
                 </form>
             </section>

@@ -3,7 +3,7 @@
 
 import bcrypt from "bcryptjs";    // Hashiranje gesel
 import { signIn } from "@/auth";  // NextAuth signIn
-import { client } from "@/sanity/lib/client"; // Sanity client
+import { serverClient } from "@/sanity/lib/serverClient"; // Sanity client
 
 // Server action za registracijo uporabnika
 export async function registerUser(formData: FormData) {
@@ -25,7 +25,7 @@ export async function registerUser(formData: FormData) {
     }
 
     // Preverimo, ali uporabnik že obstaja
-    const existingUser = await client.fetch(
+    const existingUser = await serverClient.fetch(
       `*[_type == "user" && email == $email][0]`,
       { email }
     );
@@ -38,7 +38,7 @@ export async function registerUser(formData: FormData) {
     const passwordHash = await bcrypt.hash(password, 10);
 
      // Ustvarimo novega uporabnika v Sanity
-    await client.create({
+    await serverClient.create({
       _type: "user",
       name,
       email,
