@@ -1,9 +1,14 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { serverClient } from "@/sanity/lib/serverClient";
 
-export type CreateCarResult = { success: boolean; error: string | null };
+export type CreateCarResult = {
+  success: boolean;
+  error: string | null;
+  redirectTo?: string;
+};
 
 export async function createCar(formData: FormData): Promise<CreateCarResult> {
   try {
@@ -14,14 +19,12 @@ export async function createCar(formData: FormData): Promise<CreateCarResult> {
     }
 
     const name = String(formData.get("name") || "").trim();
-    const make = String(formData.get("make") || "").trim();
-    const model = String(formData.get("model") || "").trim();
+    const makeModel = String(formData.get("makeModel") || "").trim();
     const yearRaw = String(formData.get("year") || "").trim();
     const plate = String(formData.get("plate") || "").trim();
     const vin = String(formData.get("vin") || "").trim();
     const odometerRaw = String(formData.get("odometer") || "").trim();
     const notes = String(formData.get("notes") || "").trim();
-    const imageFile = formData.get("image");
 
     if (!name) {
       return { success: false, error: "Name is required." };
@@ -45,29 +48,45 @@ export async function createCar(formData: FormData): Promise<CreateCarResult> {
       user = { _id: created._id };
     }
 
-    let imageRef: { _type: "image"; asset: { _type: "reference"; _ref: string } } | undefined;
-    if (imageFile instanceof File && imageFile.size > 0) {
-      const asset = await serverClient.assets.upload("image", imageFile, {
-        filename: imageFile.name,
-      });
-      imageRef = { _type: "image", asset: { _type: "reference", _ref: asset._id } };
+    const imageFiles = formData.getAll("images");
+    const imageRefs: {
+      _type: "image";
+      asset: { _type: "reference"; _ref: string };
+    }[] = [];
+
+    for (const file of imageFiles) {
+      if (file instanceof File && file.size > 0) {
+        const asset = await serverClient.assets.upload("image", file, {
+          filename: file.name,
+        });
+        imageRefs.push({
+          _type: "image",
+          asset: { _type: "reference", _ref: asset._id },
+        });
+      }
     }
 
-    await serverClient.create({
+    const createdCar = await serverClient.create({
       _type: "car",
       name,
       owner: { _type: "reference", _ref: user._id },
-      make: make || undefined,
-      model: model || undefined,
+      makeModel: makeModel || undefined,
       year: Number.isFinite(year) ? year : undefined,
       plate: plate || undefined,
       vin: vin || undefined,
       odometer: Number.isFinite(odometer) ? odometer : undefined,
       notes: notes || undefined,
-      image: imageRef,
+      images: imageRefs.length ? imageRefs : undefined,
     });
 
-    return { success: true, error: null };
+    revalidatePath("/dashboard");
+    revalidatePath(`/vehicle/${createdCar._id}`);
+
+    return {
+      success: true,
+      error: null,
+      redirectTo: `/vehicle/${createdCar._id}`,
+    };
   } catch (err) {
     console.error("CREATE CAR ERROR:", err);
     return { success: false, error: "Failed to create vehicle." };

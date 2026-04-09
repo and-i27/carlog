@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
 
 export default defineType({
   name: "car",
@@ -18,13 +18,8 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: "make",
-      title: "Make",
-      type: "string",
-    }),
-    defineField({
-      name: "model",
-      title: "Model",
+      name: "makeModel",
+      title: "Make / Model",
       type: "string",
     }),
     defineField({
@@ -53,9 +48,10 @@ export default defineType({
       type: "text",
     }),
     defineField({
-      name: "image",
-      title: "Image",
-      type: "image",
+      name: "images",
+      title: "Images",
+      type: "array",
+      of: [{ type: "image" }],
     }),
   ],
   preview: {
