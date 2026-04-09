@@ -20,6 +20,9 @@ const navbar = async () => {
               <Link href="/todo" className="text-black hover:text-neutral-600 whitespace-nowrap">
                 To-do
               </Link>
+              <Link href="/profile" className="text-black hover:text-neutral-600 whitespace-nowrap">
+                Profile
+              </Link>
             </>
           )}
           {session?.user ? (
