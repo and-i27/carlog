@@ -62,6 +62,48 @@ export default defineType({
         ],
       },
     }),
+    defineField({
+      name: "recurrence",
+      title: "Recurrence",
+      type: "string",
+      initialValue: "none",
+      options: {
+        list: [
+          { title: "No repeat", value: "none" },
+          { title: "Daily", value: "daily" },
+          { title: "Weekly", value: "weekly" },
+          { title: "Monthly", value: "monthly" },
+          { title: "Yearly", value: "yearly" },
+        ],
+      },
+    }),
+    defineField({
+      name: "reminderEnabled",
+      title: "Reminder enabled",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
+      name: "reminderOffset",
+      title: "Reminder offset",
+      type: "string",
+      initialValue: "1week",
+      options: {
+        list: [
+          { title: "1 day early", value: "1day" },
+          { title: "3 days early", value: "3days" },
+          { title: "1 week early", value: "1week" },
+          { title: "2 weeks early", value: "2weeks" },
+        ],
+      },
+      hidden: ({ document }) => !document?.reminderEnabled,
+    }),
+    defineField({
+      name: "reminderLastSentAt",
+      title: "Reminder last sent at",
+      type: "datetime",
+      hidden: true,
+    }),
   ],
   preview: {
     select: {

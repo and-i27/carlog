@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { requireUser } from "@/lib/requireUser";
+import ServiceCostSummary from "@/components/dashboard/ServiceCostSummary";
 
 type CarListItem = {
   _id: string;
@@ -57,7 +58,7 @@ export default async function DashboardPage() {
       { userId }
     ),
     client.fetch(
-      `*[_type == "serviceRecord" && user._ref == $userId] | order(date desc)[0...5]{
+      `*[_type == "serviceRecord" && user._ref == $userId] | order(date desc){
         _id,
         title,
         date,
@@ -132,36 +133,18 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-[color:var(--border)] bg-white p-5 shadow-sm">
-          <div className="text-sm font-semibold">Recent services</div>
-          <div className="mt-4 grid gap-3 text-sm text-[color:var(--muted)]">
-            {services.length === 0 ? (
-              <div>No service records yet.</div>
-            ) : (
-              services.map((service) => (
-                <div key={service._id} className="flex items-center justify-between gap-3">
-                  <div>
-                    <div>{service.title}</div>
-                    {service.carId && (
-                      <Link href={`/vehicle/${service.carId}/services`} className="text-xs hover:text-black">
-                        {service.carName ?? "Vehicle"}
-                      </Link>
-                    )}
-                  </div>
-                  <span className="text-black">
-                    {typeof service.cost === "number"
-                      ? `${service.cost.toFixed(2)} ${service.currency ?? "EUR"}`
-                      : new Date(service.date).toLocaleDateString("sl-SI")}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        <ServiceCostSummary
+          services={services}
+          cars={cars.map((car) => ({
+            _id: car._id,
+            name: car.name,
+            makeModel: car.makeModel,
+          }))}
+        />
       </div>
 
       <div className="rounded-lg border border-[color:var(--border)] bg-white p-5 text-sm text-[color:var(--muted)]">
-        {cars.length} vehicles, {todos.length} open tasks in view, and {services.length} recent service entries.
+        {cars.length} vehicles, {todos.length} open tasks in view, and {services.length} service entries in total.
       </div>
     </section>
   );

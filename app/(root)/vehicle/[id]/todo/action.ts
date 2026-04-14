@@ -31,6 +31,9 @@ export async function createVehicleTodo(
     const dueDate = String(formData.get("dueDate") || "").trim();
     const priority = String(formData.get("priority") || "medium").trim() || "medium";
     const status = String(formData.get("status") || "open").trim() || "open";
+    const recurrence = String(formData.get("recurrence") || "none").trim() || "none";
+    const reminderEnabled = formData.get("reminderEnabled") === "on";
+    const reminderOffset = String(formData.get("reminderOffset") || "1week").trim() || "1week";
 
     if (!title) {
       return { success: false, error: "Title is required." };
@@ -47,6 +50,9 @@ export async function createVehicleTodo(
       dueDate,
       priority,
       status,
+      recurrence,
+      reminderEnabled,
+      reminderOffset: reminderEnabled ? reminderOffset : undefined,
       car: { _type: "reference", _ref: carId },
       user: { _type: "reference", _ref: userId },
     });

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createVehicleTodo } from "@/app/(root)/vehicle/[id]/todo/action";
+import { reminderOffsetLabel } from "@/lib/todoReminder";
 
 type AddVehicleTodoFormProps = {
   carId: string;
@@ -10,6 +11,7 @@ type AddVehicleTodoFormProps = {
 export default function AddVehicleTodoForm({ carId }: AddVehicleTodoFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -56,6 +58,41 @@ export default function AddVehicleTodoForm({ carId }: AddVehicleTodoFormProps) {
             <option value="high">High</option>
           </select>
         </div>
+
+        <div className="flex flex-col gap-2 sm:col-span-2">
+          <label htmlFor="recurrence">Repeat</label>
+          <select id="recurrence" name="recurrence" className="authInput" defaultValue="none">
+            <option value="none">No repeat</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3 sm:col-span-2">
+          <input
+            id="reminderEnabled"
+            name="reminderEnabled"
+            type="checkbox"
+            checked={reminderEnabled}
+            onChange={(e) => setReminderEnabled(e.target.checked)}
+          />
+          <label htmlFor="reminderEnabled">Enable e-mail reminder</label>
+        </div>
+
+        {reminderEnabled && (
+          <div className="flex flex-col gap-2 sm:col-span-2">
+            <label htmlFor="reminderOffset">Reminder timing</label>
+            <select id="reminderOffset" name="reminderOffset" className="authInput" defaultValue="1week">
+              {Object.entries(reminderOffsetLabel).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2 sm:col-span-2">
           <label htmlFor="description">Description</label>

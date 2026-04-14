@@ -26,6 +26,7 @@ export async function createVehicleService(
       return { success: false, error: "Vehicle not found." };
     }
 
+    const serviceType = String(formData.get("serviceType") || "regular").trim() || "regular";
     const title = String(formData.get("title") || "").trim();
     const description = String(formData.get("description") || "").trim();
     const date = String(formData.get("date") || "").trim();
@@ -46,6 +47,7 @@ export async function createVehicleService(
 
     await serverClient.create({
       _type: "serviceRecord",
+      serviceType,
       title,
       description: description || undefined,
       date,
@@ -55,6 +57,10 @@ export async function createVehicleService(
       car: { _type: "reference", _ref: carId },
       user: { _type: "reference", _ref: userId },
     });
+
+    if (Number.isFinite(odometer)) {
+      await serverClient.patch(carId).set({ odometer }).commit();
+    }
 
     revalidatePath("/dashboard");
     revalidatePath(`/vehicle/${carId}`);

@@ -5,9 +5,13 @@ import { createVehicleService } from "@/app/(root)/vehicle/[id]/services/action"
 
 type AddVehicleServiceFormProps = {
   carId: string;
+  currentOdometer?: number;
 };
 
-export default function AddVehicleServiceForm({ carId }: AddVehicleServiceFormProps) {
+export default function AddVehicleServiceForm({
+  carId,
+  currentOdometer,
+}: AddVehicleServiceFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -15,10 +19,30 @@ export default function AddVehicleServiceForm({ carId }: AddVehicleServiceFormPr
     e.preventDefault();
     if (saving) return;
 
-    setSaving(true);
     setError(null);
 
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const odometerRaw = String(formData.get("odometer") || "").trim();
+    const odometer = odometerRaw ? Number(odometerRaw) : undefined;
+
+    if (
+      typeof currentOdometer === "number" &&
+      Number.isFinite(odometer) &&
+      typeof odometer === "number" &&
+      odometer < currentOdometer
+    ) {
+      const confirmed = window.confirm(
+        `Vnesli ste manj kilometrov (${odometer}) kot jih ima vozilo trenutno (${currentOdometer}). Ali res želite nadaljevati?`
+      );
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    setSaving(true);
+
     const result = await createVehicleService(carId, formData);
 
     if (!result.success) {
@@ -38,6 +62,23 @@ export default function AddVehicleServiceForm({ carId }: AddVehicleServiceFormPr
   return (
     <form className="grid gap-4" onSubmit={handleSubmit}>
       <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="serviceType">Service type</label>
+          <select id="serviceType" name="serviceType" className="authInput" defaultValue="regular">
+            <option value="regular">Redni servis</option>
+            <option value="extraordinary">Izredni servis</option>
+            <option value="small">Mali servis</option>
+            <option value="major">Veliki servis</option>
+            <option value="repair">Popravilo</option>
+            <option value="other">Drugo</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="date">Date</label>
+          <input id="date" name="date" type="datetime-local" className="authInput" required />
+        </div>
+
         <div className="flex flex-col gap-2 sm:col-span-2">
           <label htmlFor="title">Service title</label>
           <input id="title" name="title" type="text" className="authInput" required />
@@ -49,13 +90,13 @@ export default function AddVehicleServiceForm({ carId }: AddVehicleServiceFormPr
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="date">Date</label>
-          <input id="date" name="date" type="datetime-local" className="authInput" required />
-        </div>
-
-        <div className="flex flex-col gap-2">
           <label htmlFor="odometer">Odometer (km)</label>
           <input id="odometer" name="odometer" type="number" className="authInput" />
+          {typeof currentOdometer === "number" && (
+            <p className="text-xs text-[color:var(--muted)]">
+              Trenutno vozilo: {currentOdometer.toLocaleString("sl-SI")} km
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -63,7 +104,7 @@ export default function AddVehicleServiceForm({ carId }: AddVehicleServiceFormPr
           <input id="cost" name="cost" type="number" step="0.01" className="authInput" />
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 sm:col-span-2">
           <label htmlFor="currency">Currency</label>
           <input id="currency" name="currency" type="text" className="authInput" defaultValue="EUR" />
         </div>

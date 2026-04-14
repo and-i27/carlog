@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { completeTodo, deleteTodo, updateTodo } from "@/app/(root)/todo/[id]/action";
+import { reminderOffsetLabel } from "@/lib/todoReminder";
 
 type TodoDetailFormProps = {
   todo: {
@@ -11,6 +12,9 @@ type TodoDetailFormProps = {
     dueDate: string;
     priority: string;
     status: string;
+    recurrence?: string;
+    reminderEnabled?: boolean;
+    reminderOffset?: string;
   };
 };
 
@@ -19,6 +23,7 @@ export default function TodoDetailForm({ todo }: TodoDetailFormProps) {
   const [saving, setSaving] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reminderEnabled, setReminderEnabled] = useState(Boolean(todo.reminderEnabled));
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -121,6 +126,55 @@ export default function TodoDetailForm({ todo }: TodoDetailFormProps) {
         </div>
 
         <div className="flex flex-col gap-2 sm:col-span-2">
+          <label htmlFor="recurrence">Repeat</label>
+          <select id="recurrence" name="recurrence" className="authInput" defaultValue={todo.recurrence ?? "none"}>
+            <option value="none">No repeat</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:col-span-2">
+          <label htmlFor="status">Status</label>
+          <select id="status" name="status" className="authInput" defaultValue={todo.status}>
+            <option value="open">Open</option>
+            <option value="done">Done</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-3 sm:col-span-2">
+          <input
+            id="reminderEnabled"
+            name="reminderEnabled"
+            type="checkbox"
+            checked={reminderEnabled}
+            onChange={(e) => setReminderEnabled(e.target.checked)}
+          />
+          <label htmlFor="reminderEnabled">Enable e-mail reminder</label>
+        </div>
+
+        {reminderEnabled && (
+          <div className="flex flex-col gap-2 sm:col-span-2">
+            <label htmlFor="reminderOffset">Reminder timing</label>
+            <select
+              id="reminderOffset"
+              name="reminderOffset"
+              className="authInput"
+              defaultValue={todo.reminderOffset ?? "1week"}
+            >
+              {Object.entries(reminderOffsetLabel).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 sm:col-span-2">
           <label htmlFor="description">Description</label>
           <textarea
             id="description"
@@ -144,7 +198,7 @@ export default function TodoDetailForm({ todo }: TodoDetailFormProps) {
           type="button"
           onClick={handleComplete}
         >
-          {completing ? "Completing..." : "Mark as done"}
+          {completing ? "Completing..." : todo.recurrence && todo.recurrence !== "none" ? "Complete and repeat" : "Mark as done"}
         </button>
         <button
           className="rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-60"

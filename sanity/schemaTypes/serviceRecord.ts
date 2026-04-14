@@ -1,4 +1,4 @@
-import { defineType, defineField } from "sanity";
+import { defineField, defineType } from "sanity";
 
 export default defineType({
   name: "serviceRecord",
@@ -21,8 +21,18 @@ export default defineType({
     defineField({
       name: "serviceType",
       title: "Service Type",
-      type: "reference",
-      to: [{ type: "serviceType" }],
+      type: "string",
+      options: {
+        list: [
+          { title: "Redni servis", value: "regular" },
+          { title: "Izredni servis", value: "extraordinary" },
+          { title: "Mali servis", value: "small" },
+          { title: "Veliki servis", value: "major" },
+          { title: "Popravilo", value: "repair" },
+          { title: "Drugo", value: "other" },
+        ],
+      },
+      initialValue: "regular",
     }),
     defineField({
       name: "title",

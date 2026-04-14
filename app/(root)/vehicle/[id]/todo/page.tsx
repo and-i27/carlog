@@ -13,19 +13,36 @@ type VehicleTodoPageData = {
     dueDate: string;
     status: string;
     priority: string;
+    recurrence?: string;
+    reminderEnabled?: boolean;
+    reminderOffset?: string;
   }[];
 };
 
 const statusLabel: Record<string, string> = {
-  open: "Status: open",
-  done: "Status: done",
-  cancelled: "Status: canceleed",
+  open: "Status: odprto",
+  done: "Status: opravljeno",
+  cancelled: "Status: preklicano",
 };
 
 const priorityLabel: Record<string, string> = {
-  low: "low priority",
-  medium: "medium priority",
-  high: "high priority",
+  low: "Nizka pomembnost",
+  medium: "Srednja pomembnost",
+  high: "Visoka pomembnost",
+};
+
+const recurrenceLabel: Record<string, string> = {
+  daily: "Ponavlja se dnevno",
+  weekly: "Ponavlja se tedensko",
+  monthly: "Ponavlja se mesecno",
+  yearly: "Ponavlja se letno",
+};
+
+const reminderLabel: Record<string, string> = {
+  "1day": "Email opomnik 1 dan prej",
+  "3days": "Email opomnik 3 dni prej",
+  "1week": "Email opomnik 1 teden prej",
+  "2weeks": "Email opomnik 2 tedna prej",
 };
 
 const statusClassName: Record<string, string> = {
@@ -52,7 +69,10 @@ export default async function VehicleTodoPage({
         description,
         dueDate,
         status,
-        priority
+        priority,
+        recurrence,
+        reminderEnabled,
+        reminderOffset
       }
     }`,
     { id, userId }
@@ -112,6 +132,16 @@ export default async function VehicleTodoPage({
                   <div className="mt-2 text-sm text-[color:var(--muted)]">
                     Due {new Date(todo.dueDate).toLocaleString("sl-SI")}
                   </div>
+                  {todo.recurrence && todo.recurrence !== "none" && (
+                    <div className="mt-1 text-sm text-[color:var(--muted)]">
+                      {recurrenceLabel[todo.recurrence] ?? todo.recurrence}
+                    </div>
+                  )}
+                  {todo.reminderEnabled && (
+                    <div className="mt-1 text-sm text-[color:var(--muted)]">
+                      {reminderLabel[todo.reminderOffset ?? "1week"] ?? "Email opomnik aktiven"}
+                    </div>
+                  )}
                   {todo.description && (
                     <p className="mt-2 text-sm text-[color:var(--muted)]">{todo.description}</p>
                   )}

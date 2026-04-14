@@ -6,8 +6,10 @@ import AddVehicleServiceForm from "@/components/vehicle/AddVehicleServiceForm";
 type VehicleServicesPageData = {
   _id: string;
   name: string;
+  odometer?: number;
   services: {
     _id: string;
+    serviceType?: string;
     title: string;
     description?: string;
     date: string;
@@ -15,6 +17,15 @@ type VehicleServicesPageData = {
     cost?: number;
     currency?: string;
   }[];
+};
+
+const serviceTypeLabel: Record<string, string> = {
+  regular: "Redni servis",
+  extraordinary: "Izredni servis",
+  small: "Mali servis",
+  major: "Veliki servis",
+  repair: "Popravilo",
+  other: "Drugo",
 };
 
 export default async function VehicleServicesPage({
@@ -29,8 +40,10 @@ export default async function VehicleServicesPage({
     `*[_type == "car" && _id == $id && owner._ref == $userId][0]{
       _id,
       name,
+      odometer,
       "services": *[_type == "serviceRecord" && car._ref == $id && user._ref == $userId] | order(date desc){
         _id,
+        serviceType,
         title,
         description,
         date,
@@ -69,7 +82,7 @@ export default async function VehicleServicesPage({
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-lg border border-[color:var(--border)] bg-white p-5 shadow-sm">
           <div className="mb-4 text-sm font-semibold">Add service</div>
-          <AddVehicleServiceForm carId={id} />
+          <AddVehicleServiceForm carId={id} currentOdometer={vehicle.odometer} />
         </div>
 
         <div className="rounded-lg border border-[color:var(--border)] bg-white p-5 shadow-sm">
@@ -83,7 +96,14 @@ export default async function VehicleServicesPage({
               {vehicle.services.map((service) => (
                 <div key={service._id} className="rounded-lg border border-[color:var(--border)] p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="font-medium text-black">{service.title}</div>
+                    <div>
+                      <div className="font-medium text-black">{service.title}</div>
+                      {service.serviceType && (
+                        <div className="mt-1 text-sm text-[color:var(--muted)]">
+                          {serviceTypeLabel[service.serviceType] ?? service.serviceType}
+                        </div>
+                      )}
+                    </div>
                     <div className="text-sm text-[color:var(--muted)]">
                       {new Date(service.date).toLocaleString("sl-SI")}
                     </div>
